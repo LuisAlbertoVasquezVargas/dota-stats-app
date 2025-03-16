@@ -8,11 +8,34 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.cdimascio.dotenv.Dotenv;
 
-// 8203479956L
-
 public class GraphqlMatchStats {
     public static void main(String[] args) throws Exception {
+        // Print available game versions
         printGameVersions();
+        
+        // Print win rates for a specific match by delegating the process to a separate function
+        printWinRatesForMatch(8215869335L);
+    }
+
+    public static void printWinRatesForMatch(long matchId) throws Exception {
+        Map<Integer, int[]> heroStats = findStatsByMatch(matchId);
+        Map<Integer, Double> winRates = calculateWinRates(heroStats);
+        System.out.printf("%nWin Rate per Hero for match %d:%n", matchId);
+        for (Map.Entry<Integer, Double> entry : winRates.entrySet()) {
+            System.out.printf("Hero %d: %.2f%%%n", entry.getKey(), entry.getValue());
+        }
+    }
+
+    public static Map<Integer, Double> calculateWinRates(Map<Integer, int[]> heroStats) {
+        Map<Integer, Double> winRates = new HashMap<>();
+        for (Map.Entry<Integer, int[]> entry : heroStats.entrySet()) {
+            int heroId = entry.getKey();
+            int wins = entry.getValue()[0];
+            int totalMatches = entry.getValue()[1];
+            double winRate = (double) wins / totalMatches * 100;
+            winRates.put(heroId, winRate);
+        }
+        return winRates;
     }
 
     public static void printGameVersions() throws Exception {
